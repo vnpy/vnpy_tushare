@@ -44,3 +44,12 @@ pip install vnpy_tushare
 ```
 python setup.py install
 ```
+
+## 使用
+
+在VN Trader中配置时，需要填写以下字段信息：
+
+| 字段名            | 值 |
+|---------           |---- |
+|datafeed.username   | token|
+|datafeed.password   | token|
