@@ -24,6 +24,17 @@
 * 股票：
   * SSE：上海证券交易所
   * SZSE：深圳证券交易所
+* 数字货币
+  * BITMEX
+  * BITSTAMP
+  * OKEX
+  * HUOBI
+  * BITFINEX
+  * BINANCE
+  * BYBIT
+  * COINBASE
+  * DERIBIT
+  * GATEIO
 
 注意：需要使用相应的数据服务权限，可以通过[该页面](https://www.tushare.pro)注册使用。
 
@@ -44,3 +55,12 @@ pip install vnpy_tushare
 ```
 python setup.py install
 ```
+
+## 使用
+
+在VN Trader中配置时，需要填写以下字段信息：
+
+| 字段名            | 值 |
+|---------           |---- |
+|datafeed.username   | token|
+|datafeed.password   | token|
