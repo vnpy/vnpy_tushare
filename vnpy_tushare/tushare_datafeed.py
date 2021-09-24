@@ -1,12 +1,9 @@
-from datetime import timedelta
-import datetime
-from numpy import ndarray
+from datetime import timedelta, datetime
 from pytz import timezone
 from typing import List, Optional
-import pandas as pd
 from copy import deepcopy
 
-from tushare import set_token, pro_bar
+import pandas as pd
 import tushare as ts
 
 from vnpy.trader.setting import SETTINGS
@@ -66,11 +63,26 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
     if exchange in [Exchange.SSE, Exchange.SZSE]:
         ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}"
     # 期货
-    elif exchange in [Exchange.SHFE, Exchange.CFFEX, Exchange.DCE, Exchange.CZCE, Exchange.INE]:
+    elif exchange in [
+        Exchange.SHFE,
+        Exchange.CFFEX,
+        Exchange.DCE,
+        Exchange.CZCE,
+        Exchange.INE
+    ]:
         ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
     # 数字货币
-    elif exchange in [Exchange.BITSTAMP, Exchange.OKEX, Exchange.HUOBI, Exchange.BITFINEX, Exchange.BINANCE,
-                      Exchange.BYBIT, Exchange.COINBASE, Exchange.DERIBIT, Exchange.GATEIO, Exchange.BITSTAMP]:
+    elif exchange in [
+        Exchange.BITSTAMP,
+        Exchange.OKEX,
+        Exchange.HUOBI,
+        Exchange.BITFINEX,
+        Exchange.BINANCE,
+        Exchange.BYBIT,
+        Exchange.COINBASE,
+        Exchange.DERIBIT,
+        Exchange.BITSTAMP
+    ]:
         ts_symbol = symbol
     else:
         return None
@@ -79,7 +91,7 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
 
 
 class TushareDatafeed(BaseDatafeed):
-    """Tushare数据服务接口"""
+    """TuShare数据服务接口"""
 
     def __init__(self):
         """"""
@@ -87,17 +99,13 @@ class TushareDatafeed(BaseDatafeed):
         self.password: str = SETTINGS["datafeed.password"]
 
         self.inited: bool = False
-        self.symbols: ndarray = None
 
     def init(self) -> bool:
         """初始化"""
         if self.inited:
             return True
 
-        if not self.password:
-            return False
-
-        set_token(self.username)
+        ts.set_token(self.password)
         self.pro = ts.pro_api()
         self.inited = True
 
@@ -111,8 +119,8 @@ class TushareDatafeed(BaseDatafeed):
         symbol = req.symbol
         exchange = req.exchange
         interval = req.interval
-        start = req.start
-        end = req.end
+        start = req.start.strftime("%Y%m%d")
+        end = req.end.strftime("%Y%m%d")
         asset = ASSET_VT2TS[exchange]
 
         ts_symbol = to_ts_symbol(symbol, exchange)
@@ -127,11 +135,18 @@ class TushareDatafeed(BaseDatafeed):
         if asset == "C":
             # 将代码转化为tushare代码
             d = self.pro.coin_pair(exchange=exchange.value.lower())
+
             base_coin = d.loc[d["symbol"] == symbol]["base_coin"].values[0]
             price_coin = d.loc[d["symbol"] == symbol]["price_coin"].values[0]
             ts_code = f"{base_coin}_{price_coin}"
 
-            d1 = self.pro.coin_bar(exchange=exchange.value.lower(), ts_code=ts_code, freq=ts_interval, start_date=start, end_date=end)
+            d1 = self.pro.coin_bar(
+                exchange=exchange.value.lower(),
+                ts_code=ts_code,
+                freq=ts_interval,
+                start_date=start,
+                end_date=end
+            )
             d2 = d1.loc[d1["symbol"] == symbol]
             df = deepcopy(d2)
 
@@ -140,13 +155,19 @@ class TushareDatafeed(BaseDatafeed):
                     break
                 tmp_end = d2["trade_time"].values[-1]
 
-                d1 = self.pro.coin_bar(exchange=exchange.value.lower(), ts_code=ts_code, freq=ts_interval, start_date=start, end_date=tmp_end)
+                d1 = self.pro.coin_bar(
+                    exchange=exchange.value.lower(),
+                    ts_code=ts_code,
+                    freq=ts_interval,
+                    start_date=start,
+                    end_date=tmp_end
+                )
                 d2 = d1.loc[d1["symbol"] == symbol]
                 df = pd.concat([df[:-1], d2])
 
         # 其他
         else:
-            df = pro_bar(
+            df = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
                 end_date=end,
@@ -163,10 +184,10 @@ class TushareDatafeed(BaseDatafeed):
 
                 if interval.value == "d":
                     dt = row["trade_date"]
-                    dt = datetime.datetime.strptime(dt, "%Y%m%d")
+                    dt = datetime.strptime(dt, "%Y%m%d")
                 else:
                     dt = row["trade_time"]
-                    dt = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
+                    dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
 
                 dt = CHINA_TZ.localize(dt)
 
@@ -187,6 +208,3 @@ class TushareDatafeed(BaseDatafeed):
                 data.append(bar)
 
         return data
-
-    def query_tick_history(self, req: HistoryRequest) -> Optional[List[TickData]]:
-        pass
