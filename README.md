@@ -1,11 +1,11 @@
-# vn.py框架的Tushare数据服务接口
+# vn.py框架的TuShare数据服务接口
 
 <p align="center">
   <img src ="https://vnpy.oss-cn-shanghai.aliyuncs.com/vnpy-logo.png"/>
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-1.2.64-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-1.2.64.0-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux|macos-yellow.svg"/>
     <img src ="https://img.shields.io/badge/python-3.7-blue.svg"/>
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
@@ -34,7 +34,6 @@
   * BYBIT
   * COINBASE
   * DERIBIT
-  * GATEIO
 
 注意：需要使用相应的数据服务权限，可以通过[该页面](https://www.tushare.pro)注册使用。
 
@@ -58,9 +57,10 @@ python setup.py install
 
 ## 使用
 
-在VN Trader中配置时，需要填写以下字段信息：
+在vn.py中使用TuShare时，需要在全局配置中填写以下字段信息：
 
-| 字段名            | 值 |
-|---------           |---- |
-|datafeed.username   | token|
-|datafeed.password   | token|
+|名称|含义|必填|举例|
+|---------|----|---|---|
+|datafeed.name|名称|是|tushare|
+|datafeed.username|用户名|否|token|
+|datafeed.password|密码|是|c3a110417f08f26d2c221edc0c50d4a8a5001502eea89cf5|
