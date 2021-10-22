@@ -201,7 +201,8 @@ class TushareDatafeed(BaseDatafeed):
                     low_price=round_to(row["low"], 0.000001),
                     close_price=round_to(row["close"], 0.000001),
                     volume=row["vol"],
-                    open_interest=row.get("open_interest", 0),
+                    turnover=row.get("amount", 0),
+                    open_interest=row.get("oi", 0),
                     gateway_name="TS"
                 )
 
