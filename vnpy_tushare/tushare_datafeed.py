@@ -167,13 +167,28 @@ class TushareDatafeed(BaseDatafeed):
 
         # 其他
         else:
-            df = ts.pro_bar(
+            d1 = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
                 end_date=end,
                 asset=asset,
                 freq=ts_interval
             )
+            df = deepcopy(d1)
+
+            while True:
+                if len(d1) != 8000:
+                    break
+                tmp_end = d1["trade_time"].values[-1]
+
+                d1 = ts.pro_bar(
+                    ts_code=ts_symbol,
+                    start_date=start,
+                    end_date=tmp_end,
+                    asset=asset,
+                    freq=ts_interval
+                )
+                df = pd.concat([df[:-1], d1])
 
         data: List[BarData] = []
 
