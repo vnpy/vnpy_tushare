@@ -222,5 +222,6 @@ class TushareDatafeed(BaseDatafeed):
                 )
 
                 data.append(bar)
+        data.reverse()
 
         return data
