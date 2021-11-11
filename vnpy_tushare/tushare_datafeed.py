@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 from pytz import timezone
-from typing import List, Optional
+from typing import Dict, List, Optional
 from copy import deepcopy
 
 import pandas as pd
@@ -9,7 +9,7 @@ import tushare as ts
 from vnpy.trader.setting import SETTINGS
 from vnpy.trader.datafeed import BaseDatafeed
 from vnpy.trader.constant import Exchange, Interval
-from vnpy.trader.object import BarData, TickData, HistoryRequest
+from vnpy.trader.object import BarData, HistoryRequest
 from vnpy.trader.utility import round_to
 
 INTERVAL_VT2TS = {
@@ -190,6 +190,8 @@ class TushareDatafeed(BaseDatafeed):
                 )
                 df = pd.concat([df[:-1], d1])
 
+        bar_keys: List[datetime] = []
+        bar_dict: Dict[datetime, BarData] = {}
         data: List[BarData] = []
 
         if df is not None:
@@ -206,7 +208,7 @@ class TushareDatafeed(BaseDatafeed):
 
                 dt = CHINA_TZ.localize(dt)
 
-                bar = BarData(
+                bar: BarData = BarData(
                     symbol=symbol,
                     exchange=exchange,
                     interval=interval,
@@ -221,6 +223,11 @@ class TushareDatafeed(BaseDatafeed):
                     gateway_name="TS"
                 )
 
-                data.append(bar)
+                bar_dict[dt] = bar
+
+        bar_keys = bar_dict.keys()
+        bar_keys = sorted(bar_keys, reverse=False)
+        for i in bar_keys:
+            data.append(bar_dict[i])
 
         return data
