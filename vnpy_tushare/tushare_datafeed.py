@@ -194,6 +194,9 @@ class TushareDatafeed(BaseDatafeed):
         bar_dict: Dict[datetime, BarData] = {}
         data: List[BarData] = []
 
+        # 处理原始数据中的NaN值
+        df.fillna(0, inplace=True)
+
         if df is not None:
             for ix, row in df.iterrows():
                 if row["open"] is None:
