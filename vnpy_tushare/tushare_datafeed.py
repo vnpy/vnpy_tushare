@@ -143,7 +143,12 @@ class TushareDatafeed(BaseDatafeed):
         end = req.end.strftime("%Y%m%d")
 
         ts_symbol = to_ts_symbol(symbol, exchange)
+        if not ts_symbol:
+            return None
+
         asset = to_ts_asset(symbol, exchange)
+        if not asset:
+            return None
 
         ts_interval = INTERVAL_VT2TS.get(interval)
         if not ts_interval:
