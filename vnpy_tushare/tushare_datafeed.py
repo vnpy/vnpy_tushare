@@ -35,20 +35,6 @@ FUTURE_LIST = [
     Exchange.INE,
 ]
 
-# 数字货币交易所支持列表
-CRYPTOCURRENCY_LIST = [
-    Exchange.BITMEX,
-    Exchange.BITSTAMP,
-    Exchange.OKEX,
-    Exchange.HUOBI,
-    Exchange.BITFINEX,
-    Exchange.BINANCE,
-    Exchange.BYBIT,
-    Exchange.COINBASE,
-    Exchange.DERIBIT,
-    Exchange.GATEIO,
-]
-
 # 交易所映射
 EXCHANGE_VT2TS = {
     Exchange.CFFEX: "CFX",
@@ -79,9 +65,6 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
     # 期货
     elif exchange in FUTURE_LIST:
         ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
-    # 数字货币
-    elif exchange in CRYPTOCURRENCY_LIST:
-        ts_symbol = symbol
     else:
         return None
 
@@ -101,9 +84,6 @@ def to_ts_asset(symbol, exchange) -> Optional[str]:
     # 期货
     elif exchange in FUTURE_LIST:
         asset = "FT"
-    # 数字货币
-    elif exchange in CRYPTOCURRENCY_LIST:
-        asset = "C"
     else:
         return None
 
@@ -156,64 +136,28 @@ class TushareDatafeed(BaseDatafeed):
 
         adjustment = INTERVAL_ADJUSTMENT_MAP[interval]
 
-        # 数字货币
-        if asset == "C":
-            # 将代码转化为tushare代码
-            d = self.pro.coin_pair(exchange=exchange.value.lower())
+        d1 = ts.pro_bar(
+            ts_code=ts_symbol,
+            start_date=start,
+            end_date=end,
+            asset=asset,
+            freq=ts_interval
+        )
+        df = deepcopy(d1)
 
-            base_coin = d.loc[d["symbol"] == symbol]["base_coin"].values[0]
-            price_coin = d.loc[d["symbol"] == symbol]["price_coin"].values[0]
-            ts_code = f"{base_coin}_{price_coin}"
+        while True:
+            if len(d1) != 8000:
+                break
+            tmp_end = d1["trade_time"].values[-1]
 
-            d1 = self.pro.coin_bar(
-                exchange=exchange.value.lower(),
-                ts_code=ts_code,
-                freq=ts_interval,
-                start_date=start,
-                end_date=end
-            )
-            d2 = d1.loc[d1["symbol"] == symbol]
-            df = deepcopy(d2)
-
-            while True:
-                if len(d1) != 8000:
-                    break
-                tmp_end = d2["trade_time"].values[-1]
-
-                d1 = self.pro.coin_bar(
-                    exchange=exchange.value.lower(),
-                    ts_code=ts_code,
-                    freq=ts_interval,
-                    start_date=start,
-                    end_date=tmp_end
-                )
-                d2 = d1.loc[d1["symbol"] == symbol]
-                df = pd.concat([df[:-1], d2])
-
-        # 其他
-        else:
             d1 = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
-                end_date=end,
+                end_date=tmp_end,
                 asset=asset,
                 freq=ts_interval
             )
-            df = deepcopy(d1)
-
-            while True:
-                if len(d1) != 8000:
-                    break
-                tmp_end = d1["trade_time"].values[-1]
-
-                d1 = ts.pro_bar(
-                    ts_code=ts_symbol,
-                    start_date=start,
-                    end_date=tmp_end,
-                    asset=asset,
-                    freq=ts_interval
-                )
-                df = pd.concat([df[:-1], d1])
+            df = pd.concat([df[:-1], d1])
 
         bar_keys: List[datetime] = []
         bar_dict: Dict[datetime, BarData] = {}
