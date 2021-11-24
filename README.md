@@ -24,16 +24,6 @@
 * 股票：
   * SSE：上海证券交易所
   * SZSE：深圳证券交易所
-* 数字货币
-  * BITMEX
-  * BITSTAMP
-  * OKEX
-  * HUOBI
-  * BITFINEX
-  * BINANCE
-  * BYBIT
-  * COINBASE
-  * DERIBIT
 
 注意：需要使用相应的数据服务权限，可以通过[该页面](https://www.tushare.pro)注册使用。
 
