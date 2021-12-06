@@ -180,6 +180,14 @@ class TushareDatafeed(BaseDatafeed):
 
                 dt = CHINA_TZ.localize(dt)
 
+                turnover = row.get("amount", 0)
+                if turnover is None:
+                    turnover = 0
+
+                open_interest = row.get("oi", 0)
+                if open_interest is None:
+                    open_interest = 0
+
                 bar: BarData = BarData(
                     symbol=symbol,
                     exchange=exchange,
@@ -190,8 +198,8 @@ class TushareDatafeed(BaseDatafeed):
                     low_price=round_to(row["low"], 0.000001),
                     close_price=round_to(row["close"], 0.000001),
                     volume=row["vol"],
-                    turnover=row.get("amount", 0) if row.get("amount", 0) else 0,
-                    open_interest=row.get("oi", 0) if row.get("oi", 0) else 0,
+                    turnover=turnover,
+                    open_interest=open_interest,
                     gateway_name="TS"
                 )
 
