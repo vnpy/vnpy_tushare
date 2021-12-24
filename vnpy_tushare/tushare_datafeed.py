@@ -136,13 +136,17 @@ class TushareDatafeed(BaseDatafeed):
 
         adjustment = INTERVAL_ADJUSTMENT_MAP[interval]
 
-        d1 = ts.pro_bar(
-            ts_code=ts_symbol,
-            start_date=start,
-            end_date=end,
-            asset=asset,
-            freq=ts_interval
-        )
+        try:
+            d1 = ts.pro_bar(
+                ts_code=ts_symbol,
+                start_date=start,
+                end_date=end,
+                asset=asset,
+                freq=ts_interval
+            )
+        except IOError:
+            return []
+
         df = deepcopy(d1)
 
         while True:
