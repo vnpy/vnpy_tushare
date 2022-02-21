@@ -1,13 +1,13 @@
-# vn.py框架的TuShare数据服务接口
+# VeighNa框架的TuShare数据服务接口
 
 <p align="center">
   <img src ="https://vnpy.oss-cn-shanghai.aliyuncs.com/vnpy-logo.png"/>
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-1.2.64.2-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-1.2.64.3-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux|macos-yellow.svg"/>
-    <img src ="https://img.shields.io/badge/python-3.7-blue.svg"/>
+    <img src ="https://img.shields.io/badge/python-3.7|3.8|3.9|3.10-blue.svg"/>
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
 </p>
 
@@ -33,7 +33,7 @@ tushare数据源期货数据中，第一条夜盘k线数据是集合竞价数据
 
 ## 安装
 
-安装需要基于2.6.0版本以上的[VN Studio](https://www.vnpy.com)。
+安装环境推荐基于3.0.0版本以上的【[**VeighNa Studio**](https://www.vnpy.com)】。
 
 直接使用pip命令：
 
@@ -42,15 +42,16 @@ pip install vnpy_tushare
 ```
 
 
-或者下载解压后在cmd中运行：
+或者下载源代码后，解压后在cmd中运行：
 
 ```
-python setup.py install
+pip install .
 ```
+
 
 ## 使用
 
-在vn.py中使用TuShare时，需要在全局配置中填写以下字段信息：
+在VeighNa中使用TuShare时，需要在全局配置中填写以下字段信息：
 
 |名称|含义|必填|举例|
 |---------|----|---|---|
