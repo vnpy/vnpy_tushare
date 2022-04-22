@@ -136,7 +136,7 @@ class TushareDatafeed(BaseDatafeed):
         if not ts_interval:
             return None
 
-        adjustment: timedelta= INTERVAL_ADJUSTMENT_MAP[interval]
+        adjustment: timedelta = INTERVAL_ADJUSTMENT_MAP[interval]
 
         try:
             d1: DataFrame = ts.pro_bar(
@@ -156,14 +156,14 @@ class TushareDatafeed(BaseDatafeed):
                 break
             tmp_end: str = d1["trade_time"].values[-1]
 
-            d1: DataFrame = ts.pro_bar(
+            d1 = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
                 end_date=tmp_end,
                 asset=asset,
                 freq=ts_interval
             )
-            df: DataFrame = pd.concat([df[:-1], d1])
+            df = pd.concat([df[:-1], d1])
 
         bar_keys: List[datetime] = []
         bar_dict: Dict[datetime, BarData] = {}
@@ -184,7 +184,7 @@ class TushareDatafeed(BaseDatafeed):
                     dt: str = row["trade_time"]
                     dt: datetime = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
 
-                dt: datetime = CHINA_TZ.localize(dt)
+                dt = CHINA_TZ.localize(dt)
 
                 turnover = row.get("amount", 0)
                 if turnover is None:
@@ -211,7 +211,7 @@ class TushareDatafeed(BaseDatafeed):
 
                 bar_dict[dt] = bar
 
-        bar_keys = bar_dict.keys()
+        bar_keys: list = bar_dict.keys()
         bar_keys = sorted(bar_keys, reverse=False)
         for i in bar_keys:
             data.append(bar_dict[i])
