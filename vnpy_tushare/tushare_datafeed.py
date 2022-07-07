@@ -4,7 +4,9 @@ from typing import Dict, List, Optional
 from copy import deepcopy
 
 import pandas as pd
+from pandas import DataFrame
 import tushare as ts
+from tushare.pro.client import DataApi
 
 from vnpy.trader.setting import SETTINGS
 from vnpy.trader.datafeed import BaseDatafeed
@@ -13,21 +15,21 @@ from vnpy.trader.object import BarData, HistoryRequest
 from vnpy.trader.utility import round_to
 
 # 数据频率映射
-INTERVAL_VT2TS = {
+INTERVAL_VT2TS: Dict[Interval, str] = {
     Interval.MINUTE: "1min",
     Interval.HOUR: "60min",
     Interval.DAILY: "D",
 }
 
 # 股票支持列表
-STOCK_LIST = [
+STOCK_LIST: List[Exchange] = [
     Exchange.SSE,
     Exchange.SZSE,
     Exchange.BSE,
 ]
 
 # 期货支持列表
-FUTURE_LIST = [
+FUTURE_LIST: List[Exchange] = [
     Exchange.CFFEX,
     Exchange.SHFE,
     Exchange.CZCE,
@@ -36,7 +38,7 @@ FUTURE_LIST = [
 ]
 
 # 交易所映射
-EXCHANGE_VT2TS = {
+EXCHANGE_VT2TS: Dict[Exchange, str] = {
     Exchange.CFFEX: "CFX",
     Exchange.SHFE: "SHF",
     Exchange.CZCE: "ZCE",
@@ -47,7 +49,7 @@ EXCHANGE_VT2TS = {
 }
 
 # 时间调整映射
-INTERVAL_ADJUSTMENT_MAP = {
+INTERVAL_ADJUSTMENT_MAP: Dict[Interval, timedelta] = {
     Interval.MINUTE: timedelta(minutes=1),
     Interval.HOUR: timedelta(hours=1),
     Interval.DAILY: timedelta()
@@ -61,10 +63,10 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
     """将交易所代码转换为tushare代码"""
     # 股票
     if exchange in STOCK_LIST:
-        ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}"
+        ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}"
     # 期货
     elif exchange in FUTURE_LIST:
-        ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
+        ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
     else:
         return None
 
@@ -76,14 +78,14 @@ def to_ts_asset(symbol, exchange) -> Optional[str]:
     # 股票
     if exchange in STOCK_LIST:
         if exchange is Exchange.SSE and symbol[0] == "6":
-            asset = "E"
+            asset: str = "E"
         elif exchange is Exchange.SZSE and symbol[0] == "0" or symbol[0] == "3":
-            asset = "E"
+            asset: str = "E"
         else:
-            asset = "I"
+            asset: str = "I"
     # 期货
     elif exchange in FUTURE_LIST:
-        asset = "FT"
+        asset: str = "FT"
     else:
         return None
 
@@ -106,7 +108,7 @@ class TushareDatafeed(BaseDatafeed):
             return True
 
         ts.set_token(self.password)
-        self.pro = ts.pro_api()
+        self.pro: Optional[DataApi] = ts.pro_api()
         self.inited = True
 
         return True
@@ -116,28 +118,28 @@ class TushareDatafeed(BaseDatafeed):
         if not self.inited:
             self.init()
 
-        symbol = req.symbol
-        exchange = req.exchange
-        interval = req.interval
-        start = req.start.strftime("%Y%m%d")
-        end = req.end.strftime("%Y%m%d")
+        symbol: str = req.symbol
+        exchange: Exchange = req.exchange
+        interval: Interval = req.interval
+        start: datetime = req.start.strftime("%Y%m%d")
+        end: datetime = req.end.strftime("%Y%m%d")
 
-        ts_symbol = to_ts_symbol(symbol, exchange)
+        ts_symbol: str = to_ts_symbol(symbol, exchange)
         if not ts_symbol:
             return None
 
-        asset = to_ts_asset(symbol, exchange)
+        asset: str = to_ts_asset(symbol, exchange)
         if not asset:
             return None
 
-        ts_interval = INTERVAL_VT2TS.get(interval)
+        ts_interval: str = INTERVAL_VT2TS.get(interval)
         if not ts_interval:
             return None
 
-        adjustment = INTERVAL_ADJUSTMENT_MAP[interval]
+        adjustment: timedelta = INTERVAL_ADJUSTMENT_MAP[interval]
 
         try:
-            d1 = ts.pro_bar(
+            d1: DataFrame = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
                 end_date=end,
@@ -147,12 +149,12 @@ class TushareDatafeed(BaseDatafeed):
         except IOError:
             return []
 
-        df = deepcopy(d1)
+        df: DataFrame = deepcopy(d1)
 
         while True:
             if len(d1) != 8000:
                 break
-            tmp_end = d1["trade_time"].values[-1]
+            tmp_end: str = d1["trade_time"].values[-1]
 
             d1 = ts.pro_bar(
                 ts_code=ts_symbol,
@@ -176,11 +178,11 @@ class TushareDatafeed(BaseDatafeed):
                     continue
 
                 if interval.value == "d":
-                    dt = row["trade_date"]
-                    dt = datetime.strptime(dt, "%Y%m%d")
+                    dt: str = row["trade_date"]
+                    dt: datetime = datetime.strptime(dt, "%Y%m%d")
                 else:
-                    dt = row["trade_time"]
-                    dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
+                    dt: str = row["trade_time"]
+                    dt: datetime = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
 
                 dt = CHINA_TZ.localize(dt)
 
@@ -209,7 +211,7 @@ class TushareDatafeed(BaseDatafeed):
 
                 bar_dict[dt] = bar
 
-        bar_keys = bar_dict.keys()
+        bar_keys: list = bar_dict.keys()
         bar_keys = sorted(bar_keys, reverse=False)
         for i in bar_keys:
             data.append(bar_dict[i])
