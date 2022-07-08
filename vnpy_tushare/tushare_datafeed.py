@@ -121,8 +121,8 @@ class TushareDatafeed(BaseDatafeed):
         symbol: str = req.symbol
         exchange: Exchange = req.exchange
         interval: Interval = req.interval
-        start: datetime = req.start.strftime("%Y%m%d")
-        end: datetime = req.end.strftime("%Y%m%d")
+        start: datetime = req.start.strftime("%Y-%m-%d %H:%M:%S")
+        end: datetime = req.end.strftime("%Y-%m-%d %H:%M:%S")
 
         ts_symbol: str = to_ts_symbol(symbol, exchange)
         if not ts_symbol:
