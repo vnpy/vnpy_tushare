@@ -1,5 +1,4 @@
 from datetime import timedelta, datetime
-from pytz import timezone
 from typing import Dict, List, Optional
 from copy import deepcopy
 
@@ -12,7 +11,7 @@ from vnpy.trader.setting import SETTINGS
 from vnpy.trader.datafeed import BaseDatafeed
 from vnpy.trader.constant import Exchange, Interval
 from vnpy.trader.object import BarData, HistoryRequest
-from vnpy.trader.utility import round_to
+from vnpy.trader.utility import round_to, ZoneInfo
 
 # 数据频率映射
 INTERVAL_VT2TS: Dict[Interval, str] = {
@@ -56,7 +55,7 @@ INTERVAL_ADJUSTMENT_MAP: Dict[Interval, timedelta] = {
 }
 
 # 中国上海时区
-CHINA_TZ = timezone("Asia/Shanghai")
+CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 
 def to_ts_symbol(symbol, exchange) -> Optional[str]:
@@ -184,7 +183,7 @@ class TushareDatafeed(BaseDatafeed):
                     dt: str = row["trade_time"]
                     dt: datetime = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
 
-                dt = CHINA_TZ.localize(dt)
+                dt = dt.replace(tzinfo=CHINA_TZ)
 
                 turnover = row.get("amount", 0)
                 if turnover is None:
