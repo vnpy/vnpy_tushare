@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-1.2.64.3-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-1.2.85.0-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux|macos-yellow.svg"/>
     <img src ="https://img.shields.io/badge/python-3.7|3.8|3.9|3.10-blue.svg"/>
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
@@ -13,7 +13,7 @@
 
 ## 说明
 
-基于tushare模块的1.2.64版本开发，支持以下中国金融市场的K线数据：
+基于tushare模块的1.2.85版本开发，支持以下中国金融市场的K线数据：
 
 * 期货：
   * CFFEX：中国金融期货交易所
