@@ -65,7 +65,22 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
         ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}"
     # 期货
     elif exchange in FUTURE_LIST:
-        ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
+        if exchange is not Exchange.CZCE:
+            ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
+        else:
+            for count, word in enumerate(symbol):
+                if word.isdigit():
+                    break
+
+            year: str = symbol[count]
+            month: str = symbol[count + 1:]
+            if year == "9":
+                year = "1" + year
+            else:
+                year = "2" + year
+
+            product: str = symbol[:count]
+            ts_symbol: str = f"{product}{year}{month}.ZCE".upper()
     else:
         return None
 
