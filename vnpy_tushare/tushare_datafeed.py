@@ -166,14 +166,14 @@ class TushareDatafeed(BaseDatafeed):
         df: DataFrame = deepcopy(d1)
 
         while True:
-            if len(d1) != 8000:
+            if len(d1) != 8000: # Tushare单次提取最多8000行数据，超过8000条则多次提取后做拼接
                 break
             tmp_end: str = d1["trade_time"].values[-1]
 
             d1 = ts.pro_bar(
                 ts_code=ts_symbol,
-                start_date=start,
-                end_date=tmp_end,
+                start_date=tmp_end,
+                end_date=end,
                 asset=asset,
                 freq=ts_interval
             )
