@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable
 from copy import deepcopy
 
 import pandas as pd
@@ -116,10 +116,21 @@ class TushareDatafeed(BaseDatafeed):
 
         self.inited: bool = False
 
-    def init(self) -> bool:
+    def init(self, output: Callable = None) -> bool:
         """初始化"""
+        if not output:
+            output = print
+
         if self.inited:
             return True
+        
+        if not self.username:
+            output("Tushare数据服务初始化失败：用户名为空！")
+            return False
+
+        if not self.password:
+            output("Tushare数据服务初始化失败：密码为空！")
+            return False
 
         ts.set_token(self.password)
         self.pro: Optional[DataApi] = ts.pro_api()
@@ -127,10 +138,10 @@ class TushareDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = None) -> Optional[List[BarData]]:
         """查询k线数据"""
         if not self.inited:
-            self.init()
+            self.init(output)
 
         symbol: str = req.symbol
         exchange: Exchange = req.exchange
@@ -160,7 +171,8 @@ class TushareDatafeed(BaseDatafeed):
                 asset=asset,
                 freq=ts_interval
             )
-        except IOError:
+        except IOError as ex:
+            output(f"发生输入/输出错误：{ex}")
             return []
 
         df: DataFrame = deepcopy(d1)
