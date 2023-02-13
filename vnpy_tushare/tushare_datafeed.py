@@ -116,11 +116,8 @@ class TushareDatafeed(BaseDatafeed):
 
         self.inited: bool = False
 
-    def init(self, output: Callable = None) -> bool:
+    def init(self, output: Callable = print) -> bool:
         """初始化"""
-        if not output:
-            output = print
-
         if self.inited:
             return True
         
@@ -138,7 +135,7 @@ class TushareDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = None) -> Optional[List[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
         """查询k线数据"""
         if not self.inited:
             self.init(output)
