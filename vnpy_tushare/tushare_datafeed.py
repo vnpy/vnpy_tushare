@@ -34,6 +34,7 @@ FUTURE_LIST: List[Exchange] = [
     Exchange.CZCE,
     Exchange.DCE,
     Exchange.INE,
+    Exchange.GFEX
 ]
 
 # 交易所映射
@@ -45,6 +46,7 @@ EXCHANGE_VT2TS: Dict[Exchange, str] = {
     Exchange.INE: "INE",
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
+    Exchange.GFEX: "GFE"
 }
 
 # 时间调整映射
