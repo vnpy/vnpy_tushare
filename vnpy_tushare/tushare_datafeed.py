@@ -169,7 +169,7 @@ class TushareDatafeed(BaseDatafeed):
                 freq=ts_interval
             )
         except IOError as ex:
-            output(f"发生输入/输出错误：{ex}")
+            output(f"发生输入/输出错误：{ex.strerror}")
             return []
 
         df: DataFrame = deepcopy(d1)
