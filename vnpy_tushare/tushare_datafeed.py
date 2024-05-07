@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import re
 from typing import Dict, List, Optional, Callable
 from copy import deepcopy
 
@@ -95,7 +96,15 @@ def to_ts_asset(symbol, exchange) -> Optional[str]:
     if exchange in STOCK_LIST:
         if exchange is Exchange.SSE and symbol[0] == "6":
             asset: str = "E"
-        elif exchange is Exchange.SZSE and symbol[0] == "0" or symbol[0] == "3":
+        elif exchange is Exchange.SSE and symbol[0] == "5":
+            asset: str = "FD"  # 场内etf
+        elif exchange is Exchange.SZSE and symbol[0] == "1":
+            asset: str = "FD"  # 场内etf
+        # 39开头是指数，比如399001
+        elif exchange is Exchange.SZSE and re.search("^(0|3)", symbol) and not symbol.startswith('39'):
+            asset: str = "E"
+        # 89开头是指数，比如899050
+        elif exchange is Exchange.BSE and not symbol.startswith('89'):
             asset: str = "E"
         else:
             asset: str = "I"

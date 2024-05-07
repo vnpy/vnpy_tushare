@@ -24,6 +24,7 @@
 * 股票：
   * SSE：上海证券交易所
   * SZSE：深圳证券交易所
+  * BSE：北京证券交易所
 
 注意：需要使用相应的数据服务权限，可以通过[该页面](https://www.tushare.pro)注册使用。
 
@@ -58,3 +59,14 @@ pip install .
 |datafeed.name|名称|是|tushare|
 |datafeed.username|用户名|否|token|
 |datafeed.password|密码|是|c3a110417f08f26d2c221edc0c50d4a8a5001502eea89cf5|
+
+
+# 单元测试
+单元测试代码目录为`./tests/test_*.py`
+```sh
+# 指定文件执行单元测试
+python -m unittest tests\test_your_file_name.py
+
+# 全量执行
+python -m unittest
+```
