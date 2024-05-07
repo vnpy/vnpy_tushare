@@ -47,6 +47,7 @@ EXCHANGE_VT2TS: Dict[Exchange, str] = {
     Exchange.INE: "INE",
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
+    Exchange.BSE: "BJ",
     Exchange.GFEX: "GFE"
 }
 
