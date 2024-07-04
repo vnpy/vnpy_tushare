@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
-import re
-from typing import Dict, List, Optional, Callable
+from typing import Optional, Callable
 from copy import deepcopy
+import re
 
 import pandas as pd
 from pandas import DataFrame
@@ -15,21 +15,21 @@ from vnpy.trader.object import BarData, HistoryRequest
 from vnpy.trader.utility import round_to, ZoneInfo
 
 # 数据频率映射
-INTERVAL_VT2TS: Dict[Interval, str] = {
+INTERVAL_VT2TS: dict[Interval, str] = {
     Interval.MINUTE: "1min",
     Interval.HOUR: "60min",
     Interval.DAILY: "D",
 }
 
 # 股票支持列表
-STOCK_LIST: List[Exchange] = [
+STOCK_LIST: list[Exchange] = [
     Exchange.SSE,
     Exchange.SZSE,
     Exchange.BSE,
 ]
 
 # 期货支持列表
-FUTURE_LIST: List[Exchange] = [
+FUTURE_LIST: list[Exchange] = [
     Exchange.CFFEX,
     Exchange.SHFE,
     Exchange.CZCE,
@@ -39,7 +39,7 @@ FUTURE_LIST: List[Exchange] = [
 ]
 
 # 交易所映射
-EXCHANGE_VT2TS: Dict[Exchange, str] = {
+EXCHANGE_VT2TS: dict[Exchange, str] = {
     Exchange.CFFEX: "CFX",
     Exchange.SHFE: "SHF",
     Exchange.CZCE: "ZCE",
@@ -52,7 +52,7 @@ EXCHANGE_VT2TS: Dict[Exchange, str] = {
 }
 
 # 时间调整映射
-INTERVAL_ADJUSTMENT_MAP: Dict[Interval, timedelta] = {
+INTERVAL_ADJUSTMENT_MAP: dict[Interval, timedelta] = {
     Interval.MINUTE: timedelta(minutes=1),
     Interval.HOUR: timedelta(hours=1),
     Interval.DAILY: timedelta()
@@ -132,7 +132,7 @@ class TushareDatafeed(BaseDatafeed):
         """初始化"""
         if self.inited:
             return True
-        
+
         if not self.username:
             output("Tushare数据服务初始化失败：用户名为空！")
             return False
@@ -147,7 +147,7 @@ class TushareDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[list[BarData]]:
         """查询k线数据"""
         if not self.inited:
             self.init(output)
@@ -200,9 +200,9 @@ class TushareDatafeed(BaseDatafeed):
             )
             df = pd.concat([df[:-1], d1])
 
-        bar_keys: List[datetime] = []
-        bar_dict: Dict[datetime, BarData] = {}
-        data: List[BarData] = []
+        bar_keys: list[datetime] = []
+        bar_dict: dict[datetime, BarData] = {}
+        data: list[BarData] = []
 
         # 处理原始数据中的NaN值
         df.fillna(0, inplace=True)
