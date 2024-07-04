@@ -5,15 +5,15 @@
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-1.2.89.0-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-1.4.7.0-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux|macos-yellow.svg"/>
-    <img src ="https://img.shields.io/badge/python-3.7|3.8|3.9|3.10-blue.svg"/>
+    <img src ="https://img.shields.io/badge/python-3.10|3.11|3.12-blue.svg"/>
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
 </p>
 
 ## 说明
 
-基于tushare模块的1.2.89版本开发，支持以下中国金融市场的K线数据：
+基于tushare模块的1.4.7版本开发，支持以下中国金融市场的K线数据：
 
 * 期货：
   * CFFEX：中国金融期货交易所
@@ -34,7 +34,7 @@ tushare数据源期货数据中，第一条夜盘k线数据是集合竞价数据
 
 ## 安装
 
-安装环境推荐基于3.0.0版本以上的【[**VeighNa Studio**](https://www.vnpy.com)】。
+安装环境推荐基于3.9.0版本以上的【[**VeighNa Studio**](https://www.vnpy.com)】。
 
 直接使用pip命令：
 
@@ -62,6 +62,7 @@ pip install .
 
 
 # 单元测试
+
 单元测试代码目录为`./tests/test_*.py`
 ```sh
 # 指定文件执行单元测试
