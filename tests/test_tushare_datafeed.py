@@ -6,7 +6,7 @@ from vnpy.trader.constant import Exchange
 
 class TestToTsAsset(unittest.TestCase):
     # 股票
-    def test_stock(self):
+    def test_stock(self) -> None:
         self.assertEqual(to_ts_asset('600009', Exchange.SSE), "E")  # 沪市
         self.assertEqual(to_ts_asset('688981', Exchange.SSE), "E")  # 科创版
         self.assertEqual(to_ts_asset('000001', Exchange.SZSE), "E")  # 深市
@@ -15,7 +15,7 @@ class TestToTsAsset(unittest.TestCase):
         self.assertEqual(to_ts_asset('835305', Exchange.BSE), "E")  # 北交所
 
     # 指数
-    def test_index(self):
+    def test_index(self) -> None:
         self.assertEqual(to_ts_asset('000001', Exchange.SSE), "I")  # 上证指数
         self.assertEqual(to_ts_asset('000688', Exchange.SSE), "I")  # 科创版指
         self.assertEqual(to_ts_asset('399001', Exchange.SZSE), "I")  # 深证指数
@@ -23,12 +23,12 @@ class TestToTsAsset(unittest.TestCase):
         self.assertEqual(to_ts_asset('899050', Exchange.BSE), "I")  # 北交所50
 
     # 基金
-    def test_fund(self):
+    def test_fund(self) -> None:
         self.assertEqual(to_ts_asset('159934', Exchange.SZSE), "FD")  # 深市etf
         self.assertEqual(to_ts_asset('518880', Exchange.SSE), "FD")  # 沪市etf
 
     # 期货
-    def test_future(self):
+    def test_future(self) -> None:
         self.assertEqual(to_ts_asset('i2409', Exchange.CFFEX), "FT")
 
 
