@@ -1,7 +1,7 @@
 [project]
 name = "vnpy_tushare"
 dynamic = ["version"]
-description = "iFinD datafeed for VeighNa quant trading framework."
+description = "TuShare datafeed for VeighNa quant trading framework."
 readme = "README.md"
 license = {text = "MIT"}
 authors = [{name = "Xiaoyou Chen", email = "xiaoyou.chen@mail.vnpy.com"}]
@@ -10,6 +10,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
