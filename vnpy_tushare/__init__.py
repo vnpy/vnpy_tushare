@@ -21,12 +21,10 @@
 # SOFTWARE.
 
 
-import importlib_metadata
-
 from .tushare_datafeed import TushareDatafeed as Datafeed
 
 
-try:
-    __version__ = importlib_metadata.version("vnpy_tushare")
-except importlib_metadata.PackageNotFoundError:
-    __version__ = "dev"
+__all__ = ["Datafeed"]
+
+
+__version__ = "1.4.21.0"

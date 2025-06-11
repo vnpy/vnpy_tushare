@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from typing import Optional, Callable
+from collections.abc import Callable
 from copy import deepcopy
 import re
 
@@ -62,7 +62,7 @@ INTERVAL_ADJUSTMENT_MAP: dict[Interval, timedelta] = {
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 
-def to_ts_symbol(symbol, exchange) -> Optional[str]:
+def to_ts_symbol(symbol: str, exchange: Exchange) -> str | None:
     """将交易所代码转换为tushare代码"""
     # 股票
     if exchange in STOCK_LIST:
@@ -70,48 +70,48 @@ def to_ts_symbol(symbol, exchange) -> Optional[str]:
     # 期货
     elif exchange in FUTURE_LIST:
         if exchange is not Exchange.CZCE:
-            ts_symbol: str = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
+            ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
         else:
-            for count, word in enumerate(symbol):
+            for _count, word in enumerate(symbol):
                 if word.isdigit():
                     break
 
-            year: str = symbol[count]
-            month: str = symbol[count + 1:]
+            year: str = symbol[_count]
+            month: str = symbol[_count + 1:]
             if year == "9":
                 year = "1" + year
             else:
                 year = "2" + year
 
-            product: str = symbol[:count]
-            ts_symbol: str = f"{product}{year}{month}.ZCE".upper()
+            product: str = symbol[:_count]
+            ts_symbol = f"{product}{year}{month}.ZCE".upper()
     else:
         return None
 
     return ts_symbol
 
 
-def to_ts_asset(symbol, exchange) -> Optional[str]:
+def to_ts_asset(symbol: str, exchange: Exchange) -> str | None:
     """生成tushare资产类别"""
     # 股票
     if exchange in STOCK_LIST:
         if exchange is Exchange.SSE and symbol[0] == "6":
             asset: str = "E"
         elif exchange is Exchange.SSE and symbol[0] == "5":
-            asset: str = "FD"  # 场内etf
+            asset = "FD"  # 场内etf
         elif exchange is Exchange.SZSE and symbol[0] == "1":
-            asset: str = "FD"  # 场内etf
+            asset = "FD"  # 场内etf
         # 39开头是指数，比如399001
         elif exchange is Exchange.SZSE and re.search("^(0|3)", symbol) and not symbol.startswith('39'):
-            asset: str = "E"
+            asset= "E"
         # 89开头是指数，比如899050
         elif exchange is Exchange.BSE and not symbol.startswith('89'):
-            asset: str = "E"
+            asset = "E"
         else:
-            asset: str = "I"
+            asset = "I"
     # 期货
     elif exchange in FUTURE_LIST:
-        asset: str = "FT"
+        asset = "FT"
     else:
         return None
 
@@ -121,7 +121,7 @@ def to_ts_asset(symbol, exchange) -> Optional[str]:
 class TushareDatafeed(BaseDatafeed):
     """TuShare数据服务接口"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """"""
         self.username: str = SETTINGS["datafeed.username"]
         self.password: str = SETTINGS["datafeed.password"]
@@ -142,12 +142,12 @@ class TushareDatafeed(BaseDatafeed):
             return False
 
         ts.set_token(self.password)
-        self.pro: Optional[DataApi] = ts.pro_api()
+        self.pro: DataApi | None = ts.pro_api()
         self.inited = True
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[list[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
         """查询k线数据"""
         if not self.inited:
             self.init(output)
@@ -158,15 +158,15 @@ class TushareDatafeed(BaseDatafeed):
         start: datetime = req.start.strftime("%Y-%m-%d %H:%M:%S")
         end: datetime = req.end.strftime("%Y-%m-%d %H:%M:%S")
 
-        ts_symbol: str = to_ts_symbol(symbol, exchange)
+        ts_symbol: str | None = to_ts_symbol(symbol, exchange)
         if not ts_symbol:
             return None
 
-        asset: str = to_ts_asset(symbol, exchange)
+        asset: str | None = to_ts_asset(symbol, exchange)
         if not asset:
             return None
 
-        ts_interval: str = INTERVAL_VT2TS.get(interval)
+        ts_interval: str | None = INTERVAL_VT2TS.get(interval)
         if not ts_interval:
             return None
 
@@ -180,7 +180,7 @@ class TushareDatafeed(BaseDatafeed):
                 asset=asset,
                 freq=ts_interval
             )
-        except IOError as ex:
+        except OSError as ex:
             output(f"发生输入/输出错误：{ex.strerror}")
             return []
 
@@ -208,16 +208,16 @@ class TushareDatafeed(BaseDatafeed):
         df.fillna(0, inplace=True)
 
         if df is not None:
-            for ix, row in df.iterrows():
+            for _ix, row in df.iterrows():
                 if row["open"] is None:
                     continue
 
                 if interval.value == "d":
-                    dt: str = row["trade_date"]
-                    dt: datetime = datetime.strptime(dt, "%Y%m%d")
+                    dt_str: str = row["trade_date"]
+                    dt: datetime = datetime.strptime(dt_str, "%Y%m%d")
                 else:
-                    dt: str = row["trade_time"]
-                    dt: datetime = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") - adjustment
+                    dt_str = row["trade_time"]
+                    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S") - adjustment
 
                 dt = dt.replace(tzinfo=CHINA_TZ)
 
@@ -246,8 +246,7 @@ class TushareDatafeed(BaseDatafeed):
 
                 bar_dict[dt] = bar
 
-        bar_keys: list = bar_dict.keys()
-        bar_keys = sorted(bar_keys, reverse=False)
+        bar_keys = sorted(bar_dict.keys(), reverse=False)
         for i in bar_keys:
             data.append(bar_dict[i])
 
