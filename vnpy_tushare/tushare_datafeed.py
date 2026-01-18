@@ -72,19 +72,21 @@ def to_ts_symbol(symbol: str, exchange: Exchange) -> str | None:
         if exchange is not Exchange.CZCE:
             ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
         else:
-            for _count, word in enumerate(symbol):
-                if word.isdigit():
-                    break
-
-            year: str = symbol[_count]
-            month: str = symbol[_count + 1:]
-            if year == "9":
-                year = "1" + year
+            num_digits = sum(char.isdigit() for char in symbol)
+            if num_digits == 3:
+                for _count, word in enumerate(symbol):
+                    if word.isdigit():
+                        break
+                year: str = symbol[_count]
+                month: str = symbol[_count + 1:]
+                if year == "9":
+                    year = "1" + year
+                else:
+                    year = "2" + year
+                product: str = symbol[:_count]
+                ts_symbol = f"{product}{year}{month}.ZCE".upper()
             else:
-                year = "2" + year
-
-            product: str = symbol[:_count]
-            ts_symbol = f"{product}{year}{month}.ZCE".upper()
+                ts_symbol = f"{symbol}.ZCE".upper()
     else:
         return None
 
@@ -103,7 +105,7 @@ def to_ts_asset(symbol: str, exchange: Exchange) -> str | None:
             asset = "FD"  # 场内etf
         # 39开头是指数，比如399001
         elif exchange is Exchange.SZSE and re.search("^(0|3)", symbol) and not symbol.startswith('39'):
-            asset= "E"
+            asset = "E"
         # 89开头是指数，比如899050
         elif exchange is Exchange.BSE and not symbol.startswith('89'):
             asset = "E"
