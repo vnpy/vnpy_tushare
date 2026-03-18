@@ -189,7 +189,11 @@ class TushareDatafeed(BaseDatafeed):
         while True:
             if len(d1) != 8000:
                 break
-            tmp_end: str = d1["trade_time"].values[-1]
+            # 根据数据频率选择正确的列名：日线用 trade_date，分钟线/小时线用 trade_time
+            if interval.value == "d":
+                tmp_end: str = d1["trade_date"].values[-1]
+            else:
+                tmp_end: str = d1["trade_time"].values[-1]
 
             d1 = ts.pro_bar(
                 ts_code=ts_symbol,
