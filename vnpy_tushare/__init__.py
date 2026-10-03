@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""TuShare历史数据服务。"""
 
 from .tushare_datafeed import TushareDatafeed as Datafeed
 
