@@ -2,7 +2,6 @@
 
 from datetime import timedelta, datetime
 from collections.abc import Callable, Hashable
-from copy import deepcopy
 from typing import cast
 import re
 
@@ -60,6 +59,9 @@ INTERVAL_ADJUSTMENT_MAP: dict[Interval, timedelta] = {
     Interval.HOUR: timedelta(hours=1),
     Interval.DAILY: timedelta()
 }
+
+# Tushare 分钟行情单次最多返回的行数
+TS_BAR_LIMIT: int = 8000
 
 # 中国上海时区
 CHINA_TZ: ZoneInfo = ZoneInfo("Asia/Shanghai")
@@ -179,7 +181,7 @@ class TushareDatafeed(BaseDatafeed):
 
         ex: OSError
         try:
-            d1: DataFrame = ts.pro_bar(
+            d1: DataFrame | None = ts.pro_bar(
                 ts_code=ts_symbol,
                 start_date=start,
                 end_date=end,
@@ -190,25 +192,53 @@ class TushareDatafeed(BaseDatafeed):
             output(f"发生输入/输出错误：{ex.strerror}")
             return []
 
-        df: DataFrame = deepcopy(d1)
+        if d1 is None or len(d1) == 0:
+            return []
 
-        while True:
-            if len(d1) != 8000:
+        pages: list[DataFrame] = [d1]
+        seen_oldest: str | None = None
+        # 日线列名是 trade_date，分钟和小时是 trade_time。
+        # 满页后把 end 设到本页最早时间的前一根；最早时间没有再变早就停止。
+        time_column: str = "trade_date" if interval is Interval.DAILY else "trade_time"
+        while len(d1) >= TS_BAR_LIMIT and time_column in d1.columns:
+            oldest: str = str(d1[time_column].min())
+            if seen_oldest is not None and oldest >= seen_oldest:
                 break
-            # 根据数据频率选择正确的列名：日线用 trade_date，分钟线/小时线用 trade_time
-            if interval.value == "d":
-                tmp_end: str = d1["trade_date"].values[-1]
-            else:
-                tmp_end: str = d1["trade_time"].values[-1]
+            seen_oldest = oldest
 
-            d1 = ts.pro_bar(
-                ts_code=ts_symbol,
-                start_date=start,
-                end_date=tmp_end,
-                asset=asset,
-                freq=ts_interval
-            )
-            df = pd.concat([df[:-1], d1])
+            next_end: str
+            if interval is Interval.DAILY:
+                next_end = (
+                    datetime.strptime(oldest, "%Y%m%d") - timedelta(days=1)
+                ).strftime("%Y%m%d")
+            else:
+                next_end = (
+                    datetime.strptime(oldest, "%Y-%m-%d %H:%M:%S") - adjustment
+                ).strftime("%Y-%m-%d %H:%M:%S")
+            if next_end >= oldest:
+                break
+
+            try:
+                fetched: DataFrame | None = ts.pro_bar(
+                    ts_code=ts_symbol,
+                    start_date=start,
+                    end_date=next_end,
+                    asset=asset,
+                    freq=ts_interval
+                )
+            except OSError as ex:
+                output(f"发生输入/输出错误：{ex.strerror}")
+                break
+
+            if fetched is None or len(fetched) == 0 or time_column not in fetched.columns:
+                break
+            if str(fetched[time_column].min()) >= oldest:
+                break
+
+            pages.append(fetched)
+            d1 = fetched
+
+        df: DataFrame = pd.concat(pages, ignore_index=True)
 
         bar_keys: list[datetime] = []
         bar_dict: dict[datetime, BarData] = {}
