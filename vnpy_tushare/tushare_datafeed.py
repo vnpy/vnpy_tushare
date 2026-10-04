@@ -3,6 +3,7 @@
 from datetime import timedelta, datetime
 from collections.abc import Callable
 from copy import deepcopy
+from typing import cast
 import re
 
 import pandas as pd
@@ -149,28 +150,28 @@ class TushareDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData]:
         """查询k线数据"""
         if not self.inited:
             self.init(output)
 
         symbol: str = req.symbol
         exchange: Exchange = req.exchange
-        interval: Interval = req.interval
-        start: datetime = req.start.strftime("%Y-%m-%d %H:%M:%S")
-        end: datetime = req.end.strftime("%Y-%m-%d %H:%M:%S")
+        interval: Interval = cast(Interval, req.interval)
+        start: str = req.start.strftime("%Y-%m-%d %H:%M:%S")
+        end: str = cast(datetime, req.end).strftime("%Y-%m-%d %H:%M:%S")
 
         ts_symbol: str | None = to_ts_symbol(symbol, exchange)
         if not ts_symbol:
-            return None
+            return []
 
         asset: str | None = to_ts_asset(symbol, exchange)
         if not asset:
-            return None
+            return []
 
         ts_interval: str | None = INTERVAL_VT2TS.get(interval)
         if not ts_interval:
-            return None
+            return []
 
         adjustment: timedelta = INTERVAL_ADJUSTMENT_MAP[interval]
 
