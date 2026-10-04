@@ -1,7 +1,7 @@
 """TuShare历史数据服务实现。"""
 
 from datetime import timedelta, datetime
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 from copy import deepcopy
 from typing import cast
 import re
@@ -62,7 +62,7 @@ INTERVAL_ADJUSTMENT_MAP: dict[Interval, timedelta] = {
 }
 
 # 中国上海时区
-CHINA_TZ = ZoneInfo("Asia/Shanghai")
+CHINA_TZ: ZoneInfo = ZoneInfo("Asia/Shanghai")
 
 
 def to_ts_symbol(symbol: str, exchange: Exchange) -> str | None:
@@ -75,6 +75,8 @@ def to_ts_symbol(symbol: str, exchange: Exchange) -> str | None:
         if exchange is not Exchange.CZCE:
             ts_symbol = f"{symbol}.{EXCHANGE_VT2TS[exchange]}".upper()
         else:
+            _count: int
+            word: str
             for _count, word in enumerate(symbol):
                 if word.isdigit():
                     break
@@ -175,6 +177,7 @@ class TushareDatafeed(BaseDatafeed):
 
         adjustment: timedelta = INTERVAL_ADJUSTMENT_MAP[interval]
 
+        ex: OSError
         try:
             d1: DataFrame = ts.pro_bar(
                 ts_code=ts_symbol,
@@ -211,6 +214,8 @@ class TushareDatafeed(BaseDatafeed):
         df.fillna(0, inplace=True)
 
         if df is not None:
+            _ix: Hashable
+            row: pd.Series
             for _ix, row in df.iterrows():
                 if row["open"] is None:
                     continue
@@ -224,11 +229,11 @@ class TushareDatafeed(BaseDatafeed):
 
                 dt = dt.replace(tzinfo=CHINA_TZ)
 
-                turnover = row.get("amount", 0)
+                turnover: float | None = row.get("amount", 0)
                 if turnover is None:
                     turnover = 0
 
-                open_interest = row.get("oi", 0)
+                open_interest: float | None = row.get("oi", 0)
                 if open_interest is None:
                     open_interest = 0
 
@@ -250,6 +255,7 @@ class TushareDatafeed(BaseDatafeed):
                 bar_dict[dt] = bar
 
         bar_keys = sorted(bar_dict.keys(), reverse=False)
+        i: datetime
         for i in bar_keys:
             data.append(bar_dict[i])
 
