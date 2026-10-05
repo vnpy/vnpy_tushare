@@ -28,4 +28,4 @@ from .tushare_datafeed import TushareDatafeed as Datafeed
 __all__ = ["Datafeed"]
 
 
-__version__ = "1.4.21.0"
+__version__ = "1.4.21.1"
